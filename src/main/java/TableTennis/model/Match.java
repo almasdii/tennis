@@ -29,14 +29,17 @@ public class Match {
         if(isFinished()){
             throw new IllegalStateException("Match is already finished");
         }
+
         if(!player.equals(firstPlayer) && !player.equals(secondPlayer)){
             throw new IllegalArgumentException("Player is not part of this match");
         }
+
         PlayerNumber playerNumber = (player.equals(firstPlayer))
                 ? PlayerNumber.FIRST_PLAYER
                 : PlayerNumber.SECOND_PLAYER;
 
         boolean isSetWon = currentSet.pointWonBy(playerNumber);
+
         if(isSetWon){
             if(playerNumber == PlayerNumber.FIRST_PLAYER) firstPlayerSets++;
             else secondPlayerSets++;
@@ -45,6 +48,7 @@ public class Match {
             else if(secondPlayerSets >= WIN_SCORE) winner = secondPlayer;
             else currentSet = new TennisSet();
         }
+
         return isFinished();
 
     }

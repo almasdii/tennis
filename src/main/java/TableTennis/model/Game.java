@@ -7,15 +7,23 @@ public class Game {
     private Point firstPlayerPoint = Point.LOVE;
     @Getter
     private Point secondPlayerPoint = Point.LOVE;
+    @Getter
     private PlayerNumber advantage;
+    @Getter
+    private boolean isGameEnded;
+
     public Game(){
 
     }
     protected boolean pointWonBy(PlayerNumber playerNumber){
+        if(isGameEnded){
+            throw new IllegalStateException("Game is already finished");
+        }
         boolean isFirstPlayer = playerNumber == PlayerNumber.FIRST_PLAYER;
 
-        if (firstPlayerPoint == Point.FORTY && secondPlayerPoint == Point.FORTY) {
+        if (isDeuce()) {
             if (advantage == playerNumber) {
+                isGameEnded = true;
                 return true;
             } else if (advantage != null) {
                 advantage = null;
@@ -26,6 +34,7 @@ public class Game {
         }
 
         if(firstPlayerPoint == Point.FORTY && isFirstPlayer || secondPlayerPoint == Point.FORTY && !isFirstPlayer){
+            isGameEnded = true;
             return true;
         }
 
@@ -36,5 +45,10 @@ public class Game {
             secondPlayerPoint = secondPlayerPoint.next();
         }
         return false;
+    }
+
+
+    public boolean isDeuce(){
+        return firstPlayerPoint == Point.FORTY && secondPlayerPoint == Point.FORTY;
     }
 }

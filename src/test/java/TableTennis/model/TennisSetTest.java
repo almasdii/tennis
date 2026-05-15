@@ -3,10 +3,7 @@ package TableTennis.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @Tag("unit")
@@ -25,62 +22,46 @@ public class TennisSetTest {
         tennisSet.pointWonBy(playerNumber);
     }
 
-    private void winTieBreak(PlayerNumber playerNumber) {
-        for (int i = 0; i < 6; i++) {
-            assertThat(tennisSet.pointWonBy(playerNumber)).isFalse();
-        }
-        assertThat(tennisSet.pointWonBy(playerNumber)).isTrue();
-    }
-
     private void winOneSet(PlayerNumber playerNumber) {
         for (int i = 0; i < 6; i++) {
             winOneGame(playerNumber);
         }
     }
 
-
     @Test
-    @Tag("Set")
     void playerWinSetAfterSixGames() {
         assertThat(tennisSet.isSetFinished()).isFalse();
         winOneSet(PlayerNumber.FIRST_PLAYER);
         assertThat(tennisSet.isSetFinished()).isTrue();
     }
 
-    private void tieBreakCondition() {
+    @Test
+    void setContinueWhenSixAndFive(){
         for (int i = 0; i < 5; i++) {
             winOneGame(PlayerNumber.FIRST_PLAYER);
             winOneGame(PlayerNumber.SECOND_PLAYER);
         }
-
-        winOneGame(PlayerNumber.SECOND_PLAYER);
         winOneGame(PlayerNumber.FIRST_PLAYER);
-    }
-
-    @Test
-    @Tag("Set")
-    void tieBreakStartsWhenBothPlayersGamesIsSix() {
-        assertThat(tennisSet.isTieBreakStarted()).isFalse();
-        tieBreakCondition();
-        assertThat(tennisSet.isTieBreakStarted()).isTrue();
-
-    }
-
-    @Test
-    @Tag("TieBreak")
-    void firstPlayerWinInTieBreak() {
         assertThat(tennisSet.isSetFinished()).isFalse();
-        tieBreakCondition();
-        winTieBreak(PlayerNumber.FIRST_PLAYER);
-        assertThat(tennisSet.isSetFinished()).isTrue();
-
     }
-
     @Test
-    void throwExceptionWhenTieBreakNotStarted() {
-        assertThatThrownBy(() -> tennisSet.firstPlayerTieBreakScore()).
-                isInstanceOf(IllegalStateException.class)
-                .hasMessage("Tie break not started you cant get Tiebreaks score");
+    void setIsFinishedWhenSevenAndFive(){
+        for (int i = 0; i < 5; i++) {
+            winOneGame(PlayerNumber.FIRST_PLAYER);
+            winOneGame(PlayerNumber.SECOND_PLAYER);
+        }
+        winOneGame(PlayerNumber.FIRST_PLAYER);
+        winOneGame(PlayerNumber.FIRST_PLAYER);
+
+        assertThat(tennisSet.isSetFinished()).isTrue();
+    }
+    @Test
+    void newSetStartsFromZeroGames(){
+        assertThat(tennisSet.getFirstPlayerGames()).isEqualTo(0);
+        assertThat(tennisSet.getSecondPlayerGames()).isEqualTo(0);
+        winOneSet(PlayerNumber.FIRST_PLAYER);
+        assertThat(tennisSet.getFirstPlayerGames()).isEqualTo(0);
+        assertThat(tennisSet.getSecondPlayerGames()).isEqualTo(0);
 
     }
 
@@ -90,5 +71,59 @@ public class TennisSetTest {
         assertThatThrownBy(() -> tennisSet.pointWonBy(PlayerNumber.FIRST_PLAYER))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Set is already finished");
+    }
+
+    @Nested
+    @Tag("TieBreak logic")
+    @DisplayName("TieBreak class")
+    class TieBreak{
+
+        private void bringToTieBreak() {
+            for (int i = 0; i < 5; i++) {
+                winOneGame(PlayerNumber.FIRST_PLAYER);
+                winOneGame(PlayerNumber.SECOND_PLAYER);
+            }
+
+            winOneGame(PlayerNumber.SECOND_PLAYER);
+            winOneGame(PlayerNumber.FIRST_PLAYER);
+        }
+
+        private void winTieBreak(PlayerNumber playerNumber) {
+            for (int i = 0; i < 6; i++) {
+                assertThat(tennisSet.pointWonBy(playerNumber)).isFalse();
+            }
+            assertThat(tennisSet.pointWonBy(playerNumber)).isTrue();
+        }
+
+        @Test
+        void playerWinInTieBreak() {
+            assertThat(tennisSet.isSetFinished()).isFalse();
+            bringToTieBreak();
+            winTieBreak(PlayerNumber.FIRST_PLAYER);
+            assertThat(tennisSet.isSetFinished()).isTrue();
+        }
+
+        @Test
+        void throwExceptionWhenTieBreakNotStarted() {
+            assertThatThrownBy(() -> tennisSet.firstPlayerTieBreakScore()).
+                    isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Tie break not started you cant get Tiebreaks score");
+
+        }
+        @Test
+        void tieBreakStartsWhenBothPlayersGamesIsSix() {
+            assertThat(tennisSet.isTieBreakStarted()).isFalse();
+            bringToTieBreak();
+            assertThat(tennisSet.isTieBreakStarted()).isTrue();
+
+        }
+        @Test
+        void returnFalseWhenTieBreakNotStarted(){
+            assertThat(tennisSet.isTieBreakStarted()).isFalse();
+            winOneSet(PlayerNumber.FIRST_PLAYER);
+            assertThat(tennisSet.isTieBreakStarted()).isFalse();
+
+        }
+
     }
 }

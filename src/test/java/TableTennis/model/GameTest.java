@@ -1,9 +1,8 @@
 package TableTennis.model;
 
-import org.apache.logging.log4j.core.util.Assert;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,49 +12,90 @@ public class GameTest {
     private Game game;
 
     @BeforeEach
-    void newGame(){
+    void setUp(){
         game = new Game();
     }
+    private void winOneGame(PlayerNumber playerNumber){
+        assertThat(game.pointWonBy(playerNumber)).isFalse();
+        assertThat(game.pointWonBy(playerNumber)).isFalse();
+        assertThat(game.pointWonBy(playerNumber)).isFalse();
+        assertThat(game.pointWonBy(playerNumber)).isTrue();
+    }
 
     @Test
+    @DisplayName("Гейм заканчивается когда первый игрок выйгрывает четыре пойнта")
     void firstPlayerWinWhenGetScoreFourTimes(){
-        assertFalse(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
-        assertFalse(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
-        assertFalse(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
-        assertTrue(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
-
-        Assertions.assertThat(game.pointWonBy(PlayerNumber.FIRST_PLAYER)).isTrue();
+        winOneGame(PlayerNumber.FIRST_PLAYER);
+        assertThat(game.isGameEnded()).isTrue();
     }
 
     @Test
+    @DisplayName("Гейм заканчивается когда второй игрок выйгрывает четыре пойнта")
     void secondPlayerWinWhenGetScoreFourTimes(){
-        assertFalse(game.pointWonBy(PlayerNumber.SECOND_PLAYER));
-        assertFalse(game.pointWonBy(PlayerNumber.SECOND_PLAYER));
-        assertFalse(game.pointWonBy(PlayerNumber.SECOND_PLAYER));
-        assertTrue(game.pointWonBy(PlayerNumber.SECOND_PLAYER));
+        winOneGame(PlayerNumber.SECOND_PLAYER);
+        assertThat(game.isGameEnded()).isTrue();
     }
 
     @Test
-    void firstPlayerShouldWinAfterDeuce(){
-        assertFalse(game.pointWonBy(PlayerNumber.SECOND_PLAYER));
-        assertFalse(game.pointWonBy(PlayerNumber.SECOND_PLAYER));
-        assertFalse(game.pointWonBy(PlayerNumber.SECOND_PLAYER));
+    void scoreProgressesCorrectly(){
+        assertThat(game.getFirstPlayerPoint()).isEqualTo(Point.LOVE);
 
-        assertFalse(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
-        assertFalse(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
-        assertFalse(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
+        game.pointWonBy(PlayerNumber.FIRST_PLAYER);
+        assertThat(game.getFirstPlayerPoint()).isEqualTo(Point.FIFTEEN);
 
-        assertFalse(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
-        assertTrue(game.pointWonBy(PlayerNumber.FIRST_PLAYER));
-    }
-    
-    @AfterEach
-    void clean(){
+        game.pointWonBy(PlayerNumber.FIRST_PLAYER);
+        assertThat(game.getFirstPlayerPoint()).isEqualTo(Point.THIRTY);
 
+        game.pointWonBy(PlayerNumber.FIRST_PLAYER);
+        assertThat(game.getFirstPlayerPoint()).isEqualTo(Point.FORTY);
     }
 
-    @AfterAll
-    static void dest(){
+    @Test
+    @DisplayName("должен бросить исключения если после того как гейм закончился вызвался pointWonBy ")
+    void throwExceptionWhenPointWinAfterFinished(){
+        winOneGame(PlayerNumber.FIRST_PLAYER);
+        assertThatThrownBy(()->game.pointWonBy(PlayerNumber.FIRST_PLAYER))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Game is already finished");
+    }
+
+    @Nested
+    @DisplayName("Everything related with deuce")
+    @Tag("Deuce logic")
+    class Deuce{
+        @BeforeEach
+        void bringToDeuce(){
+            for (int i = 0; i < 3; i++) {
+                assertThat(game.pointWonBy(PlayerNumber.SECOND_PLAYER)).isFalse();
+                assertThat(game.pointWonBy(PlayerNumber.FIRST_PLAYER)).isFalse();
+            }
+        }
+
+        @Test
+        void deuceRestoredWhenOpponentEqualizes() {
+            game.pointWonBy(PlayerNumber.FIRST_PLAYER);
+            game.pointWonBy(PlayerNumber.SECOND_PLAYER);
+
+            assertThat(game.isDeuce()).isTrue();
+            assertThat(game.pointWonBy(PlayerNumber.FIRST_PLAYER)).isFalse();
+        }
+
+        @Test
+        void deuceShouldStartWhenScoresForty(){
+            assertThat(game.getFirstPlayerPoint()).isEqualTo(Point.FORTY);
+            assertThat(game.getSecondPlayerPoint()).isEqualTo(Point.FORTY);
+            assertThat(game.isDeuce()).isTrue();
+        }
+        @Test
+        void playerShouldWinInDeuceAfterWinTwice(){
+            assertThat(game.pointWonBy(PlayerNumber.FIRST_PLAYER)).isFalse();
+            assertThat(game.pointWonBy(PlayerNumber.FIRST_PLAYER)).isTrue();
+        }
+        @Test
+        void advantagePlayerOneAfterDeuce(){
+            game.pointWonBy(PlayerNumber.FIRST_PLAYER);
+            assertThat(game.getAdvantage()).isEqualTo(PlayerNumber.FIRST_PLAYER);
+        }
 
     }
 }
