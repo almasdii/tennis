@@ -23,6 +23,8 @@ public class AppListener implements ServletContextListener {
 
         PlayerDao playerDao = new PlayerDao(sessionFactory);
         MatchDao matchDao = new MatchDao(sessionFactory);
+
+
         FinishedMatchesPersistenceService finishedMatchesPersistenceService =
                 new FinishedMatchesPersistenceService(matchDao,playerDao);
 

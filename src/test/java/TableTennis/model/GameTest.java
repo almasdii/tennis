@@ -1,6 +1,15 @@
 package TableTennis.model;
 
+import TableTennis.entity.Player;
+import net.bytebuddy.asm.MemberSubstitution;
+import org.eclipse.tags.shaded.org.apache.xpath.Arg;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -22,19 +31,14 @@ public class GameTest {
         assertThat(game.pointWonBy(playerNumber)).isTrue();
     }
 
-    @Test
-    @DisplayName("Гейм заканчивается когда первый игрок выйгрывает четыре пойнта")
-    void firstPlayerWinWhenGetScoreFourTimes(){
-        winOneGame(PlayerNumber.FIRST_PLAYER);
+    @ParameterizedTest
+    @DisplayName("Гейм заканчивается когда игрок выйгрывает четыре пойнта")
+    @EnumSource(PlayerNumber.class)
+    void playerWinWhenGetScoreFourTimes(PlayerNumber playerNumber){
+        winOneGame(playerNumber);
         assertThat(game.isGameEnded()).isTrue();
     }
 
-    @Test
-    @DisplayName("Гейм заканчивается когда второй игрок выйгрывает четыре пойнта")
-    void secondPlayerWinWhenGetScoreFourTimes(){
-        winOneGame(PlayerNumber.SECOND_PLAYER);
-        assertThat(game.isGameEnded()).isTrue();
-    }
 
     @Test
     void scoreProgressesCorrectly(){
@@ -48,6 +52,29 @@ public class GameTest {
 
         game.pointWonBy(PlayerNumber.FIRST_PLAYER);
         assertThat(game.getFirstPlayerPoint()).isEqualTo(Point.FORTY);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getScoreProgress")
+    void winOnlyWhenFortyAndLoveFortyFIFTEEN(int firstPlayerPoint, int secondPlayerPoint, boolean isGameFinished){
+        for (int i = 0; i < firstPlayerPoint; i++) {
+            game.pointWonBy(PlayerNumber.FIRST_PLAYER);
+        }
+        for (int i = 0; i < secondPlayerPoint; i++) {
+            game.pointWonBy(PlayerNumber.SECOND_PLAYER);
+        }
+
+        assertThat(game.isGameEnded()).isEqualTo(isGameFinished);
+    }
+    static Stream<Arguments> getScoreProgress(){
+        return Stream.of(
+                Arguments.of(1,2,false),
+                Arguments.of(2,2,false),
+                Arguments.of(3,2,false),
+                Arguments.of(1,3,false),
+                Arguments.of(4,0,true),
+                Arguments.of(1,4,true)
+        );
     }
 
     @Test

@@ -1,12 +1,12 @@
 package TableTennis.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(of = {"id"})
+@ToString
 @Builder
 @Table(name = "matches")
 @Entity
@@ -27,7 +27,6 @@ public class MatchEntity {
         this.secondPlayerId = secondPlayerId;
         this.winnerId = winnerId;
     }
-
 }
 
 

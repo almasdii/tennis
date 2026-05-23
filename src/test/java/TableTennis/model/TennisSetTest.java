@@ -3,10 +3,15 @@ package TableTennis.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import TableTennis.CallBacks.GlobalExtension;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @Tag("unit")
+@ExtendWith({
+        GlobalExtension.class
+})
 public class TennisSetTest {
     private TennisSet tennisSet;
 
@@ -55,15 +60,7 @@ public class TennisSetTest {
 
         assertThat(tennisSet.isSetFinished()).isTrue();
     }
-    @Test
-    void newSetStartsFromZeroGames(){
-        assertThat(tennisSet.getFirstPlayerGames()).isEqualTo(0);
-        assertThat(tennisSet.getSecondPlayerGames()).isEqualTo(0);
-        winOneSet(PlayerNumber.FIRST_PLAYER);
-        assertThat(tennisSet.getFirstPlayerGames()).isEqualTo(0);
-        assertThat(tennisSet.getSecondPlayerGames()).isEqualTo(0);
 
-    }
 
     @Test
     void throwExceptionWhenWinAfterSetIsFinished() {

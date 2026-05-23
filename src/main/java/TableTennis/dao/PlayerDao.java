@@ -16,11 +16,7 @@ public class PlayerDao implements Dao<Player> {
     @Override
     public List<Player> findAll() {
        try(Session session = sessionFactory.openSession()){
-           Transaction transaction = session.beginTransaction();
-
            List<Player> players = session.createQuery("FROM Player",Player.class).getResultList();
-
-           transaction.commit();
            return  players;
         }
     }
@@ -40,9 +36,7 @@ public class PlayerDao implements Dao<Player> {
     @Override
     public Optional<Player> findById(int id) {
         try(Session session = sessionFactory.openSession()){
-            Transaction transaction = session.beginTransaction();
             Optional<Player> player = Optional.ofNullable(session.get(Player.class,id));
-            transaction.commit();
             return player;
         }
     }

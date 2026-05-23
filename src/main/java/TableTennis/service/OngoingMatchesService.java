@@ -66,7 +66,3 @@ public class OngoingMatchesService {
     }
 }
 
-
-//теперь как работать с Ongoing match с помощью M
-// atch мы будем получать все set games points??? и делат
-// новый Ongoing match для отоброжения получается??

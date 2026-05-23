@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,7 @@ public class MatchDao implements Dao<MatchEntity> {
 
     @Override
     public List<MatchEntity> findAll() {
-        return null;
+        return List.of();
     }
 
     public List<MatchView> findAllMatchesName() {
@@ -45,8 +46,10 @@ public class MatchDao implements Dao<MatchEntity> {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.getTransaction();
             transaction.begin();
+
             session.persist(match);
             transaction.commit();
+
             return match;
         }
     }
@@ -55,9 +58,8 @@ public class MatchDao implements Dao<MatchEntity> {
     @Override
     public Optional<MatchEntity> findById(int id) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
             Optional<MatchEntity> match = Optional.ofNullable(session.get(MatchEntity.class, String.valueOf(id)));
-            session.getTransaction().commit();
+
             return match;
         }
     }

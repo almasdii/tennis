@@ -17,10 +17,7 @@ public class TennisSet {
         if(isSetFinished()){
             throw new IllegalStateException("Set is already finished");
         }
-        if(firstPlayerGames == WIN_SCORE && secondPlayerGames == WIN_SCORE){
-            if(tieBreak == null){
-                tieBreak = new TieBreak();
-            }
+        if(isTieBreakStarted()){
             boolean isFinished = tieBreak.pointWonBy(playerNumber);
             if (isFinished){
                 if(playerNumber == PlayerNumber.FIRST_PLAYER){
@@ -45,7 +42,7 @@ public class TennisSet {
                 game = new Game();
             }
         }
-        if(tieBreak == null){
+        if(firstPlayerGames == WIN_SCORE && secondPlayerGames == WIN_SCORE){
             tieBreak = new TieBreak();
         }
         return isSetFinished();

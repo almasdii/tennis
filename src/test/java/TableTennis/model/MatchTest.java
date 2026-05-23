@@ -132,5 +132,13 @@ public class MatchTest {
         }
 
     }
+    @Test
+    void newSetStartsFromZeroGames(){
+        assertThat(match.getFirstPlayerGames()).isEqualTo(0);
+        assertThat(match.getSecondPlayerGames()).isEqualTo(0);
+        winOneSet(firstPlayer);
+        assertThat(match.getFirstPlayerGames()).isEqualTo(0);
+        assertThat(match.getSecondPlayerGames()).isEqualTo(0);
+    }
 
 }
