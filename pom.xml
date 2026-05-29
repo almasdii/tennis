@@ -62,8 +62,8 @@
     </dependency>
     <dependency>
       <groupId>io.hypersistence</groupId>
-      <artifactId>hypersistence-utils-hibernate-60</artifactId>
-      <version>3.7.3</version>
+      <artifactId>hypersistence-utils-hibernate-63</artifactId>
+      <version>3.7.0</version>
     </dependency>
     <!-- Source: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
     <dependency>

@@ -42,4 +42,12 @@ public class MatchValidator {
             throw new MatchNotFoundException(String.join("\n",errors));
         }
     }
+    public void validatePage(int page, int size) {
+        if (page < 0) {
+            throw new BadRequestException("Page cannot be negative");
+        }
+        if (size <= 0 || size > 100) {
+            throw new BadRequestException("Invalid page size");
+        }
+    }
 }

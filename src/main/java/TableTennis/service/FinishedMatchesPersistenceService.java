@@ -4,11 +4,13 @@ import TableTennis.dao.MatchDao;
 import TableTennis.dto.MatchResponse;
 import TableTennis.dto.MatchView;
 import TableTennis.entity.MatchEntity;
+import TableTennis.validator.MatchValidator;
 
 import java.util.List;
 
 public class FinishedMatchesPersistenceService {
     private final MatchDao matchDao;
+    private final MatchValidator validator = new MatchValidator();
     public FinishedMatchesPersistenceService(MatchDao dao) {
         this.matchDao = dao;
     }
@@ -17,8 +19,9 @@ public class FinishedMatchesPersistenceService {
         matchDao.save(match);
     }
 
-    public List<MatchResponse> findAll(int pageNumber,String playerName) {
-        List<MatchView> matchViews = matchDao.findAllMatchesWithName(pageNumber,playerName);
+    public List<MatchResponse> findAll(int pageNumber,int size,String playerName) {
+        validator.validatePage(pageNumber,size);
+        List<MatchView> matchViews = matchDao.findAllMatchesWithName(pageNumber,size,playerName);
         return matchViews.stream().map(matchView ->
                 new MatchResponse(matchView.firstPlayerName(),
                         matchView.SecondPlayerName(),

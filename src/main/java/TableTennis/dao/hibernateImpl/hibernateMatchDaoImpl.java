@@ -8,18 +8,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import java.util.List;
-import java.util.Optional;
 
 public class hibernateMatchDaoImpl implements MatchDao {
     private final SessionFactory sessionFactory;
-
-    public hibernateMatchDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
-    @Override
-    public List<MatchView> findAllMatchesWithName(int pageNumber,String playerName) {
-        try (Session session = sessionFactory.openSession()) {
-            String hql = """
+    public static final String FIND_ALL_MATCHES_BY_NAME = """
                         SELECT new TableTennis.dto.MatchView(
                             p1.name,
                             p2.name,
@@ -31,7 +23,13 @@ public class hibernateMatchDaoImpl implements MatchDao {
                         JOIN Player w  ON w.id  = m.winnerId
                     """;
 
-            return session.createQuery(hql, MatchView.class).getResultList();
+    public hibernateMatchDaoImpl(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+    @Override
+    public List<MatchView> findAllMatchesWithName(int pageNumber,int size,String playerName) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery(FIND_ALL_MATCHES_BY_NAME, MatchView.class).getResultList();
         }
     }
 
