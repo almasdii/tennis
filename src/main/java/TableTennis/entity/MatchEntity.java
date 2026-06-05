@@ -18,6 +18,7 @@ public class MatchEntity extends BaseEntity<Long>{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player2")
 
+
     private Player secondPlayer;
     @ManyToOne(fetch = FetchType.LAZY)
 
