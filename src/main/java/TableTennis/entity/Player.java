@@ -6,18 +6,15 @@ import lombok.*;
 import java.util.List;
 
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = {"name"})
-@ToString
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(of = {"name"}, callSuper = false)
+@ToString
 @Table(name = "players")
 @Entity
-public class Player {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Player extends BaseEntity<Long>{
 
-    @Getter private String name;
+    private String name;
     public Player(String name){
         this.name = name;
     }

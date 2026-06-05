@@ -2,6 +2,7 @@ package TableTennis.service;
 
 import TableTennis.dao.PlayerDao;
 import TableTennis.entity.Player;
+import TableTennis.utils.TransactionManager;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -9,8 +10,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlayerService {
     private final PlayerDao playerDao;
-    public Player findByNameOrCreate(String name){
-        return playerDao.findByName(name)
-                .orElseGet(() -> playerDao.save(new Player(name)));
+    private final TransactionManager transactionManager;
+
+    public Player findByNameOrCreate(String name) {
+        return transactionManager.doInTransaction(() -> {
+            return playerDao.findByName(name)
+                    .orElseGet(() -> playerDao.save(new Player(name)));
+        });
     }
 }

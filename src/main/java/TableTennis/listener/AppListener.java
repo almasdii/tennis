@@ -2,12 +2,13 @@ package TableTennis.listener;
 
 import TableTennis.dao.MatchDao;
 import TableTennis.dao.PlayerDao;
-import TableTennis.dao.hibernateImpl.hibernateMatchDaoImpl;
-import TableTennis.dao.hibernateImpl.hibernatePlayerDaoImpl;
+import TableTennis.dao.hibernateImpl.HibernateMatchDaoImpl;
+import TableTennis.dao.hibernateImpl.HibernatePlayerDaoImpl;
 import TableTennis.entity.Player;
 import TableTennis.service.FinishedMatchesPersistenceService;
 import TableTennis.service.OngoingMatchesService;
 import TableTennis.service.PlayerService;
+import TableTennis.utils.TransactionManager;
 import TableTennis.validator.MatchValidator;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -25,18 +26,23 @@ public class AppListener implements ServletContextListener {
         configuration.configure();
         sessionFactory = configuration.buildSessionFactory();
 
-        PlayerDao playerDao = new hibernatePlayerDaoImpl(sessionFactory);
-        MatchDao matchDao = new hibernateMatchDaoImpl(sessionFactory);
+        PlayerDao playerDao = new HibernatePlayerDaoImpl(sessionFactory);
+        MatchDao matchDao = new HibernateMatchDaoImpl(sessionFactory);
+
+        TransactionManager transactionManager = new TransactionManager(sessionFactory);
 
 
         FinishedMatchesPersistenceService finishedMatchesPersistenceService =
-                new FinishedMatchesPersistenceService(matchDao);
+                new FinishedMatchesPersistenceService(matchDao,transactionManager);
+
         MatchValidator validator = new MatchValidator();
-        PlayerService playerService = new PlayerService(playerDao);
+        PlayerService playerService = new PlayerService(playerDao,transactionManager);
+
         OngoingMatchesService ongoingMatchesService = new OngoingMatchesService(
                 finishedMatchesPersistenceService,
                 validator,
-                playerService);
+                playerService,
+                transactionManager);
 
         sce.getServletContext().setAttribute("OngoingMatchesService", ongoingMatchesService);
         sce.getServletContext().setAttribute("FinishedMatchesPersistenceService", finishedMatchesPersistenceService);

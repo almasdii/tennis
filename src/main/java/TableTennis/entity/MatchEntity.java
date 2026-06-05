@@ -10,11 +10,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "matches")
 @Entity
-public class MatchEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class MatchEntity extends BaseEntity<Long>{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player1")
     private Player firstPlayer;
@@ -40,7 +36,7 @@ public class MatchEntity {
         }
         if (o == null || getClass() != o.getClass()) return false;
         MatchEntity that = (MatchEntity) o;
-        return that.id != null && that.id.equals(this.id);
+        return that.getId() != null && that.getId().equals(this.getId());
     }
 
     @Override
@@ -51,7 +47,7 @@ public class MatchEntity {
     @Override
     public String toString() {
         return "MatchEntity{" +
-                "id=" + id +
+                "id=" + this.getId() +
                 ", firstPlayer=" + (firstPlayer != null ? firstPlayer.getId() : null) +
                 ", secondPlayer=" + (secondPlayer != null ? secondPlayer.getId() : null) +
                 ", winner=" + (winner != null ? winner.getId() : null) +

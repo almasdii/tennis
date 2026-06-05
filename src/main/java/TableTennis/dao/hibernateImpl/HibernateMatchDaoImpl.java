@@ -11,7 +11,7 @@ import org.hibernate.query.Query;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class hibernateMatchDaoImpl implements MatchDao {
+public class HibernateMatchDaoImpl implements MatchDao {
     private final SessionFactory sessionFactory;
     public static final String FIND_ALL_MATCHES = """
             SELECT m

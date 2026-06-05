@@ -10,7 +10,7 @@ import org.hibernate.Transaction;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class hibernatePlayerDaoImpl implements PlayerDao {
+public class HibernatePlayerDaoImpl implements PlayerDao {
     private final SessionFactory sessionFactory;
     public static final String FIND_BY_NAME = "SELECT p FROM Player p WHERE p.name = :name";
 

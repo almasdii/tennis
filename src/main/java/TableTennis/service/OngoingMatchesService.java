@@ -8,6 +8,7 @@ import TableTennis.entity.MatchEntity;
 import TableTennis.mapper.MatchScoreMapper;
 import TableTennis.model.Match;
 import TableTennis.entity.Player;
+import TableTennis.utils.TransactionManager;
 import TableTennis.validator.MatchValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,17 +26,20 @@ public class OngoingMatchesService {
     private final FinishedMatchesPersistenceService finishedMatchesPersistenceService;
     private final MatchValidator validator;
     private final PlayerService playerService;
+    private final TransactionManager transactionManager;
 
     public UUID createMatch(MatchRequest request) {
-        Player firstPlayer = playerService.findByNameOrCreate(request.firstPlayerName());
-        Player secondPlayer = playerService.findByNameOrCreate(request.secondPlayerName());
-        validator.validateNames(firstPlayer.getName(),secondPlayer.getName());
+        return transactionManager.doInTransaction(()->{
+            Player firstPlayer = playerService.findByNameOrCreate(request.firstPlayerName());
+            Player secondPlayer = playerService.findByNameOrCreate(request.secondPlayerName());
+            validator.validateNames(firstPlayer.getName(),secondPlayer.getName());
 
-        log.debug("first player : {} , second player : {}",firstPlayer,secondPlayer);
-        UUID uuid = UUID.randomUUID();
-        Match match = new Match(uuid,firstPlayer,secondPlayer);
-        currentMatches.put(uuid,match);
-        return uuid;
+            log.debug("first player : {} , second player : {}",firstPlayer,secondPlayer);
+            UUID uuid = UUID.randomUUID();
+            Match match = new Match(uuid,firstPlayer,secondPlayer);
+            currentMatches.put(uuid,match);
+            return uuid;
+        });
     }
     public Optional<MatchScoreModel> getMatchScoreById(UUID uuid){
         if(uuid == null){
