@@ -9,11 +9,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.DialectOverride;
 
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @WebServlet("/matches")
 public class MatchesServlet extends HttpServlet {
     private FinishedMatchesPersistenceService finishedService;
@@ -28,17 +30,20 @@ public class MatchesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp){
         String playerName = req.getParameter("filter_by_player_name");
         String pageNumberParam = req.getParameter("page");
-
+        log.debug("page number param : {}",pageNumberParam);
         int pageNumber = 0;
         if(pageNumberParam != null){
             pageNumber = Integer.parseInt(pageNumberParam);
         }
+        log.debug("pageNumber : {} ",pageNumber);
 
-        List<MatchResponse> all =
+        List<MatchResponse> currentPageMatches =
                 finishedService.findAll(playerName,pageNumber);
+
         int numberOfPages = finishedService.numberOfPages();
+        log.debug("number of pages : {}",numberOfPages);
         int pageSize = FinishedMatchesPersistenceService.DEFAULT_PAGE_SIZE;
-        req.setAttribute("matches",all);
+        req.setAttribute("matches",currentPageMatches);
         req.setAttribute("pageSize",pageSize);
         req.setAttribute("pageNumber",pageNumber);
         req.setAttribute("filterName",playerName);

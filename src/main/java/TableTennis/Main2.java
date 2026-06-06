@@ -32,10 +32,5 @@ public class Main2 {
 //            System.out.println(player2);
 //            session.close();
 //        }
-        log.trace("Самый подробный уровень");
-        log.debug("Отладочное сообщение");
-        log.info("Информационное сообщение");
-        log.warn("Предупреждение");
-        log.error("Ошибка");
     }
 }

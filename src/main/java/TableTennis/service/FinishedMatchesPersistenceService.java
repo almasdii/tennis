@@ -21,7 +21,9 @@ public class FinishedMatchesPersistenceService {
     private final MatchValidator validator = new MatchValidator();
 
     public void save(MatchEntity match) {
-        matchDao.save(match);
+        transactionManager.doInTransaction(()->{
+            matchDao.save(match);
+        });
     }
 
     public List<MatchResponse> findAll(String playerName,int pageNumber) {
@@ -35,7 +37,6 @@ public class FinishedMatchesPersistenceService {
             } else {
                 matches = matchDao.findAllMatchesLikeName(pageNumber, DEFAULT_PAGE_SIZE, playerName);
             }
-
             return matches;
         });
         return list.stream().map(match ->
@@ -45,9 +46,10 @@ public class FinishedMatchesPersistenceService {
     }
 
     public int numberOfPages(){
-        int pages = (int) Math.ceil(matchDao.totalNumberOfMatches()/(double)DEFAULT_PAGE_SIZE)-1;
-        log.debug("number of pages = {}",pages);
-        return pages;
+        return transactionManager.doInTransaction(()->{
+            return (int) Math.ceil(matchDao.totalNumberOfMatches()/(double)DEFAULT_PAGE_SIZE);
+        });
     }
 }
+
 

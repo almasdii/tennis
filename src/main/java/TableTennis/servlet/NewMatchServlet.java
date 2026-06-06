@@ -34,15 +34,19 @@ public class NewMatchServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String firstPlayer = request.getParameter("playerOne");
-        String secondPlayer = request.getParameter("playerTwo");
-        if(firstPlayer == null || secondPlayer == null){
+        String firstPlayerName = request.getParameter("playerOne");
+        String secondPlayerName = request.getParameter("playerTwo");
+
+        request.setAttribute("firstPlayerName",firstPlayerName);
+        request.setAttribute("secondPlayerName",secondPlayerName);
+
+        if(firstPlayerName == null || secondPlayerName == null){
             throw new BadRequestException("names are null");
         }
 
-        log.debug("first player name : {} , second player name : {}",firstPlayer,secondPlayer);
+        log.info("first player name : {} , second player name : {}",firstPlayerName,secondPlayerName);
 
-        MatchRequest matchRequest = new MatchRequest(firstPlayer,secondPlayer);
+        MatchRequest matchRequest = new MatchRequest(firstPlayerName,secondPlayerName);
         UUID uuid = service.createMatch(matchRequest);
 
         response.sendRedirect(getServletContext().getContextPath() + "/match-score?uuid="+uuid);

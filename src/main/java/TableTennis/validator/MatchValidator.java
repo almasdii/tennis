@@ -2,6 +2,7 @@ package TableTennis.validator;
 
 import TableTennis.Exception.BadRequestException;
 import TableTennis.Exception.MatchNotFoundException;
+import TableTennis.Exception.PlayerSearchValidationException;
 import TableTennis.Exception.ValidationException;
 
 import java.util.ArrayList;
@@ -9,29 +10,36 @@ import java.util.List;
 import java.util.UUID;
 
 public class MatchValidator {
-    public void validateNames(String first, String second) {
+    public void validateNames(String firstPlayerName, String secondPlayerName) {
         List<String> errors = new ArrayList<>();
-        if (first == null || second == null) {
+        if (firstPlayerName == null || secondPlayerName == null) {
             throw new BadRequestException("Names cannot be null");
         }
-        if(first.isEmpty() || second.isEmpty()){
+        if(firstPlayerName.isEmpty() || secondPlayerName.isEmpty()){
             errors.add("names cannot be empty");
         }
 
-        if (!first.matches("^[a-zA-Zа-яА-ЯёЁ]+$")) {
-            errors.add("First name invalid");
+        if(!firstPlayerName.matches("^[A-Z]{1}[a-z]+")){
+            errors.add("first player name : name should start from capital letter");
+        }
+        if(!secondPlayerName.matches("^[A-Z]{1}[a-z]+")){
+            errors.add("second player name : name should start from capital letter");
         }
 
-        if (!second.matches("^[a-zA-Zа-яА-ЯёЁ]+$")) {
-            errors.add("Second name invalid");
+        if (!firstPlayerName.matches("^[a-zA-Zа-яА-ЯёЁ]+$")) {
+            errors.add("first player name : allowed letters a-b A-Z а-я А-Я ёЁ");
         }
 
-        if (first.equalsIgnoreCase(second)) {
-            errors.add("Names must be different");
+        if (!secondPlayerName.matches("^[a-zA-Zа-яА-ЯёЁ]+$")) {
+            errors.add("second player name : allowed letters a-b A-Z а-я А-Я ёЁ");
+        }
+
+        if (firstPlayerName.equalsIgnoreCase(secondPlayerName)) {
+            errors.add("must be different");
         }
 
         if (!errors.isEmpty()) {
-            throw new ValidationException(String.join("\n", errors));
+            throw new ValidationException(String.join("\n ", errors));
         }
     }
     public void validateFilterName(String name){
@@ -43,7 +51,7 @@ public class MatchValidator {
             errors.add("name max size is 20");
         }
         if (!errors.isEmpty()) {
-            throw new ValidationException(String.join("\n", errors));
+            throw new PlayerSearchValidationException(String.join("\n", errors));
         }
 
     }

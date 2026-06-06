@@ -12,18 +12,23 @@ public class TransactionManager {
     private final SessionFactory sessionFactory;
 
     public <T> T doInTransaction(Supplier<T> action){
-        Session session = sessionFactory.openSession();
+        Session session = sessionFactory.getCurrentSession();
         Transaction transaction = session.getTransaction();
-        try {
+        boolean isOwner = !transaction.isActive(); // мы открыли транзакцию?
+
+        if (isOwner) {
             transaction.begin();
-            T t = action.get();
-            transaction.commit();
-            return t;
-        }catch (Exception e){
-            session.getTransaction().rollback();
+        }
+
+        try {
+            T result = action.get();
+            if (isOwner) transaction.commit();
+            return result;
+        } catch (Exception e) {
+            if (isOwner) transaction.rollback();
             throw e;
-        }finally {
-            session.close();
+        } finally {
+            if (isOwner) session.close();
         }
     }
     public void doInTransaction(Runnable action){

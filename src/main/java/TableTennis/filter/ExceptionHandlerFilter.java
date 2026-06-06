@@ -1,7 +1,6 @@
 package TableTennis.filter;
 
-import TableTennis.Exception.BadRequestException;
-import TableTennis.Exception.MatchNotFoundException;
+import TableTennis.Exception.*;
 import TableTennis.utils.JspHelper;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
@@ -23,21 +22,36 @@ public class ExceptionHandlerFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        try{
+        try {
             log.debug("Exception handler Filter starts, before doFilter");
-            chain.doFilter(request,response);
+            chain.doFilter(request, response);
             log.debug("after doFilter");
-        }catch (BadRequestException exception){
-            log.warn("BadRequestException called ",exception);
-//            httpServletResponse.sendError(400,exception.getMessage());
+        }catch (PlayerSearchValidationException exception){
             httpServletResponse.setStatus(400);
-            httpServletRequest.setAttribute("error",exception.getMessage());
-            httpServletRequest.getRequestDispatcher(JspHelper.getPath("new-match")).forward(httpServletRequest,httpServletResponse);
-        }catch (MatchNotFoundException exception){
-            log.warn("match not found",exception);
+            httpServletRequest.setAttribute("error", exception.getMessage());
+            httpServletRequest.getRequestDispatcher(JspHelper.getPath("matches")).forward(httpServletRequest, httpServletResponse);
         }
-        catch (Exception exception){
-            log.error("Exception ",exception);
+        catch (ValidationException exception) {
+            httpServletResponse.setStatus(400);
+            httpServletRequest.setAttribute("error", exception.getMessage());
+            httpServletRequest.getRequestDispatcher(JspHelper.getPath("new-match")).forward(httpServletRequest, httpServletResponse);
+        } catch (BadRequestException exception) {
+            httpServletResponse.setStatus(400);
+            httpServletRequest.setAttribute("error", exception.getMessage());
+            httpServletRequest.getRequestDispatcher("/error").forward(httpServletRequest, httpServletResponse);
+        } catch (MatchNotFoundException exception) {
+            httpServletResponse.setStatus(404);
+            httpServletRequest.setAttribute("error", exception.getMessage());
+            httpServletRequest.getRequestDispatcher(httpServletRequest.getContextPath() + "/error").forward(httpServletRequest, httpServletResponse);
+        } catch (DataBaseException exception) {
+            httpServletResponse.setStatus(500);
+            httpServletRequest.setAttribute("error", exception.getMessage());
+            httpServletRequest.getRequestDispatcher(httpServletRequest.getContextPath() + "/error").forward(httpServletRequest, httpServletResponse);
+        } catch (Exception exception) {
+            log.error("Exception ", exception);
+            httpServletResponse.setStatus(500);
+            httpServletRequest.setAttribute("error", exception.getMessage());
+            httpServletRequest.getRequestDispatcher(httpServletRequest.getContextPath() + "/error").forward(httpServletRequest, httpServletResponse);
         }
     }
 

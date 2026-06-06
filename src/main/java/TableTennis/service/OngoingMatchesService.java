@@ -30,9 +30,10 @@ public class OngoingMatchesService {
 
     public UUID createMatch(MatchRequest request) {
         return transactionManager.doInTransaction(()->{
+            validator.validateNames(request.firstPlayerName(),request.secondPlayerName());
+
             Player firstPlayer = playerService.findByNameOrCreate(request.firstPlayerName());
             Player secondPlayer = playerService.findByNameOrCreate(request.secondPlayerName());
-            validator.validateNames(firstPlayer.getName(),secondPlayer.getName());
 
             log.debug("first player : {} , second player : {}",firstPlayer,secondPlayer);
             UUID uuid = UUID.randomUUID();
@@ -54,7 +55,10 @@ public class OngoingMatchesService {
     }
 
     public boolean wonPoint(UUID matchId, String playerName) {
-        Player player = playerService.findByNameOrCreate(playerName);
+        Player player = transactionManager.doInTransaction(() -> {
+            return playerService.findByNameOrCreate(playerName);
+        });
+
         Match match = currentMatches.get(matchId);
         if(match == null){
             throw new MatchNotFoundException("Match is not found");

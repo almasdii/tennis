@@ -2,10 +2,10 @@ package TableTennis.dao.hibernateImpl;
 
 import TableTennis.dao.PlayerDao;
 import TableTennis.entity.Player;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 import java.util.Optional;
 
@@ -16,21 +16,18 @@ public class HibernatePlayerDaoImpl implements PlayerDao {
 
     @Override
     public Player save(Player entity) {
-        try(Session session = sessionFactory.openSession()){
-            Transaction transaction = session.beginTransaction();
-            session.persist(entity);
-
-            transaction.commit();
+        Session currentSession = sessionFactory.getCurrentSession();
+        currentSession.persist(entity);
             return entity;
-        }
+
     }
 
     public Optional<Player> findByName(String name){
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery(
+        Session currentSession = sessionFactory.getCurrentSession();
+            return Optional.ofNullable(currentSession.createQuery(
                             FIND_BY_NAME, Player.class)
                     .setParameter("name", name)
-                    .uniqueResultOptional();
-        }
+                    .uniqueResult());
+
     }
 }

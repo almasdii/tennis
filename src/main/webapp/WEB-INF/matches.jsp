@@ -32,27 +32,30 @@
 </header>
 <main>
     <div class="container">
-        <h1>Matches</h1><div class="input-container">
-        <form method="get" action="${pageContext.request.contextPath}/matches">
-            <input type="hidden" name="page" value="0" />
-            <label>
-                <input
-                        class="input-filter"
-                        placeholder="Filter by name"
-                        type="text"
-                        name="filter_by_player_name"
-                        value="${param.filter_by_player_name}"
-                />
-            </label>
+        <h1>Matches</h1>
+        <div class="input-container">
+            <form method="get" action="${pageContext.request.contextPath}/matches">
+                <input type="hidden" name="page" value="0"/>
+                <label>
+                    <input
+                            class="input-filter"
+                            placeholder="Filter by name"
+                            type="text"
+                            name="filter_by_player_name"
+                            value="${param.filter_by_player_name}"
+                    />
+                </label>
 
-            <button type="submit" class="btn-filter">Search</button>
+                <button type="submit" class="btn-filter">Search</button>
 
-            <a href="${pageContext.request.contextPath}/matches?page=0">
-                <button type="button" class="btn-filter">Reset Filter</button>
-            </a>
-
-        </form>
-    </div>
+                <a href="${pageContext.request.contextPath}/matches?page=0">
+                    <button type="button" class="btn-filter">Reset Filter</button>
+                </a>
+            </form>
+            <c:if test="${requestScope.error != null}">
+                <h3 class="error-message" style="white-space: pre-line;">${requestScope.error}</h3>
+            </c:if>
+        </div>
 
         <table class="table-matches">
             <tr>
@@ -69,17 +72,25 @@
             </c:forEach>
         </table>
 
-        <div class="pagination">
-            <c:if test="${requestScope.pageNumber > 0}">
-                <a class="prev" href="${pageContext.request.contextPath}/matches?page=${requestScope.pageNumber-1}&filter_by_player_name=${requestScope.playerName}"> < </a>
-            </c:if>
-            <c:forEach var="index" begin="0" end="${requestScope.numberOfPages}">
-                <a class="num-page current" href="${pageContext.request.contextPath}/matches?page=${index}&filter_by_player_name=${requestScope.playerName}">${index}</a>
-            </c:forEach>
-            <c:if test="${requestScope.pageNumber < requestScope.numberOfPages}">
-                <a class="next" href="${pageContext.request.contextPath}/matches?page=${requestScope.pageNumber+1}&filter_by_player_name=${requestScope.playerName}"> > </a>
-            </c:if>
-        </div>
+        <c:if test="${requestScope.numberOfPages > 0}">
+            <div class="pagination">
+
+                <c:if test="${requestScope.pageNumber > 0}">
+                    <a class="prev"
+                       href="${pageContext.request.contextPath}/matches?page=${requestScope.pageNumber-1}&filter_by_player_name=${requestScope.playerName}">
+                        < </a>
+                </c:if>
+                <c:forEach var="index" begin="0" end="${requestScope.numberOfPages-1}">
+                    <a class="num-page ${index == requestScope.pageNumber ? 'current' : ''}"
+                       href="${pageContext.request.contextPath}/matches?page=${index}&filter_by_player_name=${requestScope.playerName}">${index}</a>
+                </c:forEach>
+                <c:if test="${requestScope.pageNumber < requestScope.numberOfPages-1}">
+                    <a class="next"
+                       href="${pageContext.request.contextPath}/matches?page=${requestScope.pageNumber+1}&filter_by_player_name=${requestScope.playerName}">
+                        > </a>
+                </c:if>
+            </div>
+        </c:if>
     </div>
 </main>
 <footer>

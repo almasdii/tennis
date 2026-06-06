@@ -13,9 +13,8 @@ public class PlayerService {
     private final TransactionManager transactionManager;
 
     public Player findByNameOrCreate(String name) {
-        return transactionManager.doInTransaction(() -> {
-            return playerDao.findByName(name)
-                    .orElseGet(() -> playerDao.save(new Player(name)));
-        });
+        return playerDao.findByName(name)
+                .orElseGet(() -> playerDao.save(new Player(name)));
+
     }
 }

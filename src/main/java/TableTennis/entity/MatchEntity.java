@@ -16,14 +16,13 @@ public class MatchEntity extends BaseEntity<Long>{
     private Player firstPlayer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "player2")
-
-
-    private Player secondPlayer;
-    @ManyToOne(fetch = FetchType.LAZY)
-
     @JoinColumn(name = "winner")
     private Player winner;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "player2")
+    private Player secondPlayer;
     public MatchEntity(Player firstPlayer, Player secondPlayer, Player winner){
         this.firstPlayer = firstPlayer;
         this.secondPlayer = secondPlayer;

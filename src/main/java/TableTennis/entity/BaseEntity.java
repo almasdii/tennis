@@ -12,7 +12,4 @@ public class BaseEntity<K> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private K id;
-
-    @Version
-    private Long version;
 }

@@ -22,8 +22,8 @@
         </div>
         <div>
             <nav class="nav-links">
-                <a class="nav-link" href="#">Home</a>
-                <a class="nav-link" href="#">Matches</a>
+                <a class="nav-link" href="${pageContext.request.contextPath}">Home</a>
+                <a class="nav-link" href="${pageContext.request.contextPath}/matches">Matches</a>
             </nav>
         </div>
     </section>
@@ -37,13 +37,13 @@
                 <form method="post" action="${pageContext.request.contextPath}/new-match">
                     <p style="color: #7f3d3d;">Sample error message</p>
                     <label class="label-player" for="playerOne">Player one</label>
-                    <input class="input-player" placeholder="Name" type="text" required title="Enter a name" id="playerOne" name="playerOne">
+                    <input class="input-player" placeholder="Name" value="${requestScope.firstPlayerName}" type="text" required title="Enter a name" id="playerOne" name="playerOne">
                     <label class="label-player" for="playerTwo">Player two</label>
-                    <input class="input-player" placeholder="Name" type="text" required title="Enter a name" id="playerTwo" name="playerTwo">
+                    <input class="input-player" placeholder="Name" value="${requestScope.secondPlayerName}" type="text" required title="Enter a name" id="playerTwo" name="playerTwo">
                     <input class="form-button" type="submit" value="Start">
                     <br>
                     <c:if test="${requestScope.error != null}">
-                        <p class="error-message">${requestScope.error}</p>
+                        <h3 class="error-message" style="white-space: pre-line;">${requestScope.error}</h3>
                     </c:if>
                 </form>
             </div>
