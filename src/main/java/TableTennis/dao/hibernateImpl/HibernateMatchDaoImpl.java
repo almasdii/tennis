@@ -36,6 +36,16 @@ public class HibernateMatchDaoImpl implements MatchDao {
     public static final String TOTAL_NUMBER_OF_MATCHES = """
             SELECT count(m) FROM MatchEntity m
             """;
+    public static final String TOTAL_NUMBER_OF_ALL_MATCHES_BY_NAME = """
+        SELECT count(m) FROM MatchEntity m
+        JOIN m.winner w
+        JOIN m.firstPlayer f
+        JOIN m.secondPlayer s
+        WHERE
+            w.name LIKE :name
+            OR f.name LIKE :name
+            OR s.name LIKE :name
+        """;
 
     @Override
     public List<MatchEntity> findAllMatches(int pageNumber, int pageSize) {
@@ -64,9 +74,22 @@ public class HibernateMatchDaoImpl implements MatchDao {
     @Override
     public Long totalNumberOfMatches() {
         Session currentSession = sessionFactory.getCurrentSession();
-        Long singleResult = currentSession.createQuery(TOTAL_NUMBER_OF_MATCHES, Long.class).getSingleResult();
+        Long singleResult = currentSession
+                .createQuery(TOTAL_NUMBER_OF_MATCHES, Long.class)
+                .getSingleResult();
+
         log.debug("total matches : {} ", singleResult);
         return singleResult;
+    }
+
+    @Override
+    public Long totalNumberOfMatches(String playerName) {
+        Session currentSession = sessionFactory.getCurrentSession();
+
+        return currentSession
+                .createQuery(TOTAL_NUMBER_OF_ALL_MATCHES_BY_NAME, Long.class)
+                .setParameter("name", "%" + playerName + "%")
+                .getSingleResult();
     }
 
     @Override

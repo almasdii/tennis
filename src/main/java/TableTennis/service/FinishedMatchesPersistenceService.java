@@ -43,13 +43,22 @@ public class FinishedMatchesPersistenceService {
             }
             return matches;
         });
-        PaginationData paginationData = new PaginationData(matchEntities,numberOfPages(),DEFAULT_PAGE_SIZE,pageNumber);
+        PaginationData paginationData = new PaginationData(matchEntities,numberOfPages(playerName),pageNumber,DEFAULT_PAGE_SIZE);
         return mapper.mapFrom(paginationData);
     }
 
-    public int numberOfPages(){
-        return transactionManager.doInTransaction(()->{
-            return (int) Math.ceil(matchDao.totalNumberOfMatches()/(double)DEFAULT_PAGE_SIZE);
+    public int numberOfPages(String playerName){
+        return transactionManager.doInTransaction(() -> {
+            if (playerName != null && !playerName.isEmpty()) {
+                return (int) Math.ceil(
+                        matchDao.totalNumberOfMatches(playerName)
+                                / (double) DEFAULT_PAGE_SIZE
+                );
+            }
+            return (int) Math.ceil(
+                    matchDao.totalNumberOfMatches()
+                            / (double) DEFAULT_PAGE_SIZE
+            );
         });
     }
 }
