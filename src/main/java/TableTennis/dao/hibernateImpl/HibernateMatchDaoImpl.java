@@ -21,6 +21,7 @@ public class HibernateMatchDaoImpl implements MatchDao {
             LEFT JOIN FETCH m.firstPlayer f
             LEFT JOIN FETCH m.secondPlayer s
             LEFT JOIN FETCH m.winner w
+            ORDER BY m.id DESC
             """;
 
     private static final String FIND_ALL_BY_NAME_QUERY = """
@@ -49,25 +50,25 @@ public class HibernateMatchDaoImpl implements MatchDao {
     private final SessionFactory sessionFactory;
 
     @Override
-    public List<MatchEntity> findAll(int pageNumber, int pageSize) {
+    public List<MatchEntity> findAll(int limit, int offset) {
         try {
             Session currentSession = sessionFactory.getCurrentSession();
             return currentSession.createQuery(FIND_ALL_QUERY, MatchEntity.class)
-                    .setMaxResults(pageSize)
-                    .setFirstResult(pageNumber * pageSize).getResultList();
+                    .setMaxResults(limit)
+                    .setFirstResult(offset).getResultList();
         } catch (HibernateException exception) {
             throw new DataBaseException(exception);
         }
     }
 
     @Override
-    public List<MatchEntity> findAllByName(int pageNumber, int pageSize, String playerName) {
+    public List<MatchEntity> findAllByName(int limit, int offset, String playerName) {
         try {
             Session currentSession = sessionFactory.getCurrentSession();
             return currentSession.createQuery(FIND_ALL_BY_NAME_QUERY, MatchEntity.class)
                     .setParameter(NAME, "%" + playerName + "%")
-                    .setFirstResult(pageNumber * pageSize)
-                    .setMaxResults(pageSize).list();
+                    .setFirstResult(offset)
+                    .setMaxResults(limit).list();
         } catch (HibernateException exception) {
             throw new HibernateException(exception);
         }

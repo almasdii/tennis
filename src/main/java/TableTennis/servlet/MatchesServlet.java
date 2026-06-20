@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -18,6 +19,9 @@ import java.util.List;
 @Slf4j
 @WebServlet("/matches")
 public class MatchesServlet extends HttpServlet {
+
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE_NUMBER = 0;
     private FinishedMatchesPersistenceService finishedService;
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -31,13 +35,13 @@ public class MatchesServlet extends HttpServlet {
         String playerName = req.getParameter("filter_by_player_name");
         String pageNumberParam = req.getParameter("page");
 
-        int pageNumber = 0;
+        int pageNumber = DEFAULT_PAGE_NUMBER;
         if(pageNumberParam != null){
             pageNumber = Integer.parseInt(pageNumberParam);
         }
         log.debug("pageNumber : {} ",pageNumber);
 
-        PaginationDto paginationDto = finishedService.findAll(playerName, pageNumber);
+        PaginationDto paginationDto = finishedService.findAll(playerName, pageNumber,DEFAULT_PAGE_SIZE);
         log.debug("number of pages : {}",paginationDto.numberOfPages());
 
         req.setAttribute("paginationDto",paginationDto);

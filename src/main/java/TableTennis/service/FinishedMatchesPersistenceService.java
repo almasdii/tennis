@@ -17,8 +17,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FinishedMatchesPersistenceService {
-    @Getter public static final int DEFAULT_PAGE_SIZE = 20;
-    @Getter public static final int DEFAULT_PAGE_NUMBER = 0;
     private final MatchDao matchDao;
     private final TransactionManager transactionManager;
     private final MatchValidator validator = new MatchValidator();
@@ -30,34 +28,36 @@ public class FinishedMatchesPersistenceService {
         });
     }
 
-    public PaginationDto findAll(String playerName, int pageNumber) {
+    public PaginationDto findAll(String playerName, int pageNumber, int pageSize) {
         validator.validatePage(pageNumber);
         validator.validateFilterName(playerName);
+        int limit = pageSize;
+        int offset = pageNumber * pageSize;
 
         List<MatchEntity> matchEntities = transactionManager.doInTransaction(() -> {
             List<MatchEntity> matches;
             if (playerName == null) {
-                matches = matchDao.findAll(pageNumber, DEFAULT_PAGE_SIZE);
+                matches = matchDao.findAll(limit, offset);
             } else {
-                matches = matchDao.findAllByName(pageNumber, DEFAULT_PAGE_SIZE, playerName);
+                matches = matchDao.findAllByName(limit, offset, playerName);
             }
             return matches;
         });
-        PaginationData paginationData = new PaginationData(matchEntities,numberOfPages(playerName),pageNumber,DEFAULT_PAGE_SIZE);
+        PaginationData paginationData = new PaginationData(matchEntities,numberOfPages(playerName,limit),pageNumber,limit);
         return mapper.mapFrom(paginationData);
     }
 
-    public int numberOfPages(String playerName){
+    public int numberOfPages(String playerName,int limit){
         return transactionManager.doInTransaction(() -> {
             if (playerName != null && !playerName.isEmpty()) {
                 return (int) Math.ceil(
                         matchDao.countTotalMatches(playerName)
-                                / (double) DEFAULT_PAGE_SIZE
+                                / (double) limit
                 );
             }
             return (int) Math.ceil(
                     matchDao.countTotalMatches()
-                            / (double) DEFAULT_PAGE_SIZE
+                            / (double) limit
             );
         });
     }
