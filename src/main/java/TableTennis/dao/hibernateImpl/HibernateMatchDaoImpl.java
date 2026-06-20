@@ -1,102 +1,112 @@
 package TableTennis.dao.hibernateImpl;
 
+import TableTennis.Exception.DataBaseException;
 import TableTennis.dao.MatchDao;
 import TableTennis.entity.MatchEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 public class HibernateMatchDaoImpl implements MatchDao {
-    private final SessionFactory sessionFactory;
-    public static final String FIND_ALL_MATCHES = """
+    private static final String NAME = "name";
+    private static final String FIND_ALL_QUERY = """
             SELECT m
             FROM MatchEntity m
-            JOIN FETCH m.firstPlayer f
-            JOIN FETCH m.secondPlayer s
-            JOIN FETCH m.winner w
+            LEFT JOIN FETCH m.firstPlayer f
+            LEFT JOIN FETCH m.secondPlayer s
+            LEFT JOIN FETCH m.winner w
             """;
 
-    public static final String FIND_ALL_MATCHES_BY_NAME = """
+    private static final String FIND_ALL_BY_NAME_QUERY = """
             SELECT m FROM MatchEntity m
-            JOIN FETCH m.winner w
-            JOIN FETCH m.firstPlayer f
-            JOIN FETCH m.secondPlayer s
+            LEFT JOIN FETCH m.firstPlayer f
+            LEFT JOIN FETCH m.secondPlayer s
             WHERE
-            w.name LIKE :name
-            OR f.name LIKE :name
+            f.name LIKE :name
             OR s.name LIKE :name
             """;
 
-    public static final String TOTAL_NUMBER_OF_MATCHES = """
-            SELECT count(m) FROM MatchEntity m
+    private static final String COUNT_MATCHES = """
+            SELECT count(m) 
+            FROM MatchEntity m
             """;
-    public static final String TOTAL_NUMBER_OF_ALL_MATCHES_BY_NAME = """
-        SELECT count(m) FROM MatchEntity m
-        JOIN m.winner w
-        JOIN m.firstPlayer f
-        JOIN m.secondPlayer s
-        WHERE
-            w.name LIKE :name
-            OR f.name LIKE :name
-            OR s.name LIKE :name
-        """;
+    public static final String COUNT_MATCHES_BY_NAME = """
+            SELECT count(m) 
+            FROM MatchEntity m
+            JOIN m.firstPlayer f
+            JOIN m.secondPlayer s
+            WHERE
+                f.name LIKE :name
+                OR s.name LIKE :name
+            """;
+
+    private final SessionFactory sessionFactory;
 
     @Override
-    public List<MatchEntity> findAllMatches(int pageNumber, int pageSize) {
-        Session currentSession = sessionFactory.getCurrentSession();
-        Query<MatchEntity> query = currentSession.createQuery(FIND_ALL_MATCHES, MatchEntity.class);
-        query.setMaxResults(pageSize);
-        query.setFirstResult(pageNumber * pageSize);
-        log.debug("page size : {}",pageSize);
-        log.debug("first result : {}",pageNumber * pageSize);
-        return query.getResultList();
-
+    public List<MatchEntity> findAll(int pageNumber, int pageSize) {
+        try {
+            Session currentSession = sessionFactory.getCurrentSession();
+            return currentSession.createQuery(FIND_ALL_QUERY, MatchEntity.class)
+                    .setMaxResults(pageSize)
+                    .setFirstResult(pageNumber * pageSize).getResultList();
+        } catch (HibernateException exception) {
+            throw new DataBaseException(exception);
+        }
     }
 
     @Override
-    public List<MatchEntity> findAllMatchesLikeName(int pageNumber, int pageSize, String playerName) {
-        Session currentSession = sessionFactory.getCurrentSession();
-        Query<MatchEntity> query = currentSession.createQuery(FIND_ALL_MATCHES_BY_NAME, MatchEntity.class);
-        query.setParameter("name", "%" + playerName + "%");
-        query.setFirstResult(pageNumber * pageSize);
-        query.setMaxResults(pageSize);
-
-        return query.getResultList();
-
+    public List<MatchEntity> findAllByName(int pageNumber, int pageSize, String playerName) {
+        try {
+            Session currentSession = sessionFactory.getCurrentSession();
+            return currentSession.createQuery(FIND_ALL_BY_NAME_QUERY, MatchEntity.class)
+                    .setParameter(NAME, "%" + playerName + "%")
+                    .setFirstResult(pageNumber * pageSize)
+                    .setMaxResults(pageSize).list();
+        } catch (HibernateException exception) {
+            throw new HibernateException(exception);
+        }
     }
 
     @Override
-    public Long totalNumberOfMatches() {
-        Session currentSession = sessionFactory.getCurrentSession();
-        Long singleResult = currentSession
-                .createQuery(TOTAL_NUMBER_OF_MATCHES, Long.class)
-                .getSingleResult();
-
-        log.debug("total matches : {} ", singleResult);
-        return singleResult;
+    public Long countTotalMatches() {
+        try {
+            Session currentSession = sessionFactory.getCurrentSession();
+            return currentSession
+                    .createQuery(COUNT_MATCHES, Long.class)
+                    .getSingleResult();
+        } catch (HibernateException exception) {
+            throw new DataBaseException(exception);
+        }
     }
 
     @Override
-    public Long totalNumberOfMatches(String playerName) {
-        Session currentSession = sessionFactory.getCurrentSession();
-
-        return currentSession
-                .createQuery(TOTAL_NUMBER_OF_ALL_MATCHES_BY_NAME, Long.class)
-                .setParameter("name", "%" + playerName + "%")
-                .getSingleResult();
+    public Long countTotalMatches(String playerName) {
+        try {
+            Session currentSession = sessionFactory.getCurrentSession();
+            return currentSession
+                    .createQuery(COUNT_MATCHES_BY_NAME, Long.class)
+                    .setParameter(NAME, "%" + playerName + "%")
+                    .getSingleResult();
+        } catch (HibernateException exception) {
+            throw new DataBaseException(exception);
+        }
     }
 
     @Override
     public MatchEntity save(MatchEntity match) {
-        Session currentSession = sessionFactory.getCurrentSession();
-        currentSession.persist(match);
-        return match;
+        try {
+            Session currentSession = sessionFactory.getCurrentSession();
+            currentSession.persist(match);
+            return match;
+        } catch (HibernateException exception) {
+            throw new DataBaseException(exception);
+        }
     }
 
 }

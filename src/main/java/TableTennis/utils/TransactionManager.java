@@ -16,7 +16,7 @@ public class TransactionManager {
     public <T> T doInTransaction(Supplier<T> action){
         Session session = sessionFactory.getCurrentSession();
         Transaction transaction = session.getTransaction();
-        boolean isOwner = !transaction.isActive(); // мы открыли транзакцию?
+        boolean isOwner = !transaction.isActive();
 
         if (isOwner) {
             transaction.begin();

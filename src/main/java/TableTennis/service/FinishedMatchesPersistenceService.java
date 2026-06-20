@@ -37,9 +37,9 @@ public class FinishedMatchesPersistenceService {
         List<MatchEntity> matchEntities = transactionManager.doInTransaction(() -> {
             List<MatchEntity> matches;
             if (playerName == null) {
-                matches = matchDao.findAllMatches(pageNumber, DEFAULT_PAGE_SIZE);
+                matches = matchDao.findAll(pageNumber, DEFAULT_PAGE_SIZE);
             } else {
-                matches = matchDao.findAllMatchesLikeName(pageNumber, DEFAULT_PAGE_SIZE, playerName);
+                matches = matchDao.findAllByName(pageNumber, DEFAULT_PAGE_SIZE, playerName);
             }
             return matches;
         });
@@ -51,12 +51,12 @@ public class FinishedMatchesPersistenceService {
         return transactionManager.doInTransaction(() -> {
             if (playerName != null && !playerName.isEmpty()) {
                 return (int) Math.ceil(
-                        matchDao.totalNumberOfMatches(playerName)
+                        matchDao.countTotalMatches(playerName)
                                 / (double) DEFAULT_PAGE_SIZE
                 );
             }
             return (int) Math.ceil(
-                    matchDao.totalNumberOfMatches()
+                    matchDao.countTotalMatches()
                             / (double) DEFAULT_PAGE_SIZE
             );
         });
